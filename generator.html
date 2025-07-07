@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Generátor faktury</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #outputLink {
+      margin-top: 20px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generátor odkazu na fakturu</h1>
+
+  <label for="dodavatel">Dodavatel (víceřádkový text)</label>
+  <textarea id="dodavatel" rows="5">Titiko s.r.o.
+Klimentská 1746/52
+110 00 Praha 1
+Česká republika
+IČ: 07079460
+DIČ: CZ07079460</textarea>
+
+  <label for="odberatel">Odběratel (víceřádkový text)</label>
+  <textarea id="odberatel" rows="4">Jan Novak
+Krkonošská 11
+130 00 Praha 3</textarea>
+
+  <label for="vystaveno">Datum vystavení</label>
+  <input type="date" id="vystaveno" value="2025-07-07">
+
+  <label for="splatnost">Datum splatnosti</label>
+  <input type="date" id="splatnost" value="2025-07-21">
+
+  <label for="banka">Číslo účtu</label>
+  <input type="text" id="banka" value="123456789/0100">
+
+  <label for="co">Předmět</label>
+  <input type="text" id="co" value="Ubytování">
+
+  <label for="pocet">Počet jednotek</label>
+  <input type="number" id="pocet" value="2">
+
+  <label for="cena">Cena za jednotku</label>
+  <input type="number" id="cena" value="2500">
+
+  <button onclick="generateLink()">Vytvořit odkaz</button>
+
+  <div id="outputLink"></div>
+
+  <script>
+    function generateLink() {
+      const params = {
+        dodavatel: document.getElementById("dodavatel").value,
+        odberatel: document.getElementById("odberatel").value,
+        vystaveno: document.getElementById("vystaveno").value,
+        splatnost: document.getElementById("splatnost").value,
+        banka: document.getElementById("banka").value,
+        co: document.getElementById("co").value,
+        pocet: document.getElementById("pocet").value,
+        cena: document.getElementById("cena").value
+      };
+
+      const queryString = Object.entries(params)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join("&");
+
+      const url = `invoice.html?${queryString}`;
+      document.getElementById("outputLink").innerHTML = `<p><strong>Vygenerovaný odkaz:</strong><br><a href="${url}" target="_blank">${url}</a></p>`;
+    }
+  </script>
+</body>
+</html>
