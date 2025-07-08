@@ -5,7 +5,7 @@ const port = 3000;
 
 // Serve invoicer.html on /invoicer
 app.get("/invoicer", (req, res) => {
-  res.sendFile(path.join(__dirname, "invoicer.html"));
+  res.sendFile(path.join(__dirname, "invoice.html"));
 });
 
 // Start server
