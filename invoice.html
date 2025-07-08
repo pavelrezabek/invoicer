@@ -133,45 +133,53 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const dodavatel = (params.get("dodavatel") || "").replace(/\\n/g, "\n");
-    const odberatel = (params.get("odberatel") || "").replace(/\\n/g, "\n");
-    const vystaveno = params.get("vystaveno") || "";
-    const splatnost = params.get("splatnost") || "";
-    const banka = params.get("banka") || "";
-    const co = params.get("co") || "";
-    const pocet = parseFloat(params.get("pocet") || "0");
-    const cena = parseFloat(params.get("cena") || "0");
-    const celkem = (pocet * cena).toFixed(2);
+  const params = new URLSearchParams(window.location.search);
+  const dodavatel = (params.get("dodavatel") || "").replace(/\\n/g, "\n");
+  const odberatel = (params.get("odberatel") || "").replace(/\\n/g, "\n");
+  const vystaveno = params.get("vystaveno") || "";
+  const splatnost = params.get("splatnost") || "";
+  const banka = params.get("banka") || "";
+  const co = params.get("co") || "";
+  const pocet = parseFloat(params.get("pocet") || "0");
+  const cena = parseFloat(params.get("cena") || "0");
+  const celkem = (pocet * cena).toFixed(2);
 
+  // Podpora pro vlastní číslo faktury
+  const urlCislo = params.get("cislo");
+  let cisloFaktury = "";
+
+  if (urlCislo) {
+    cisloFaktury = urlCislo;
+  } else {
     let counter = parseInt(localStorage.getItem("fakturaCounter") || "0") + 1;
     localStorage.setItem("fakturaCounter", counter);
     const rok = new Date().getFullYear();
-    const cisloFaktury = `F${rok}-${String(counter).padStart(3, '0')}`;
+    cisloFaktury = `F${rok}-${String(counter).padStart(3, '0')}`;
+  }
 
-    document.getElementById("dodavatel").textContent = dodavatel;
-    document.getElementById("odberatel").textContent = odberatel;
-    document.getElementById("vystaveno").textContent = vystaveno;
-    document.getElementById("splatnost").textContent = splatnost;
-    document.getElementById("banka").textContent = banka;
-    document.getElementById("co").textContent = co;
-    document.getElementById("pocet").textContent = pocet;
-    document.getElementById("cena").textContent = cena.toFixed(2);
-    document.getElementById("celkem").textContent = celkem;
-    document.getElementById("cisloFaktury").textContent = cisloFaktury;
+  document.getElementById("dodavatel").textContent = dodavatel;
+  document.getElementById("odberatel").textContent = odberatel;
+  document.getElementById("vystaveno").textContent = vystaveno;
+  document.getElementById("splatnost").textContent = splatnost;
+  document.getElementById("banka").textContent = banka;
+  document.getElementById("co").textContent = co;
+  document.getElementById("pocet").textContent = pocet;
+  document.getElementById("cena").textContent = cena.toFixed(2);
+  document.getElementById("celkem").textContent = celkem;
+  document.getElementById("cisloFaktury").textContent = cisloFaktury;
 
-    function stahnoutPDF() {
-      const element = document.getElementById('faktura');
-      const opt = {
-        margin: 0.5,
-        filename: cisloFaktury + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().from(element).set(opt).save();
-    }
-  </script>
+  function stahnoutPDF() {
+    const element = document.getElementById('faktura');
+    const opt = {
+      margin: 0.5,
+      filename: cisloFaktury + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().from(element).set(opt).save();
+  }
+</script>
 
 </body>
 </html>
