@@ -3,12 +3,19 @@ const path = require("path");
 const app = express();
 const port = 3000;
 
-// Serve invoicer.html on /invoicer
+// Serve invoice.html on /invoicer
 app.get("/invoicer", (req, res) => {
   res.sendFile(path.join(__dirname, "invoice.html"));
 });
 
+// Serve invoice1.html on /invoicer1
+app.get("/invoicer1", (req, res) => {
+  res.sendFile(path.join(__dirname, "invoice1.html"));
+});
+
 // Start server
 app.listen(port, () => {
-  console.log(`Server běží na http://localhost:${port}/invoicer`);
+  console.log(`Server běží na:`);
+  console.log(`http://localhost:${port}/invoicer`);
+  console.log(`http://localhost:${port}/invoicer1`);
 });

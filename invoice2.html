@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Faktura</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #eef1f5;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+
+    #faktura {
+      background: #fff;
+      width: 180mm;
+      padding: 0;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .top-bar {
+      background: #1976d2;
+      height: 10mm;
+      width: 100%;
+    }
+
+    .content-wrapper {
+      padding: 30px 25px;
+    }
+
+    h1 {
+      font-size: 28px;
+      text-align: center;
+      margin: 0 0 30px;
+      color: #1976d2;
+    }
+
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section {
+      margin-bottom: 25px;
+    }
+
+    .label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .content {
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 15px;
+    }
+
+    .line-item:last-child {
+      border-bottom: none;
+    }
+
+    .total {
+      text-align: right;
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .komentar {
+      font-size: 14px;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px dashed #ccc;
+      color: #444;
+      white-space: pre-wrap;
+    }
+
+    .button-wrapper {
+      margin-top: 30px;
+      text-align: right;
+    }
+
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #125a9c;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .button-wrapper {
+        display: none;
+      }
+      #faktura {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="faktura">
+    <div class="top-bar"></div>
+    <div class="content-wrapper">
+
+      <h1>Faktura</h1>
+
+      <div class="section flex">
+        <div style="flex:1">
+          <div class="label">Dodavatel</div>
+          <div class="content" id="dodavatel"></div>
+        </div>
+        <div style="flex:1">
+          <div class="label">Odběratel</div>
+          <div class="content" id="odberatel"></div>
+        </div>
+      </div>
+
+      <div class="section flex">
+        <div>
+          <div class="label">Číslo faktury</div>
+          <div class="content" id="cisloFaktury"></div>
+        </div>
+        <div>
+          <div class="label">Datum vystavení</div>
+          <div class="content" id="vystaveno"></div>
+        </div>
+        <div>
+          <div class="label">Splatnost</div>
+          <div class="content" id="splatnost"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="label">Bankovní spojení</div>
+        <div class="content" id="banka"></div>
+      </div>
+
+      <div class="section">
+        <div class="label">Položky faktury</div>
+        <div class="line-item">
+          <div id="co"></div>
+          <div><span id="pocet"></span> × <span id="cena"></span> Kč</div>
+        </div>
+        <div class="total">Celkem: <span id="celkem"></span> Kč</div>
+      </div>
+
+      <div class="komentar" id="komentar" style="display: none;"></div>
+
+    </div>
+  </div>
+
+  <div class="button-wrapper">
+    <button onclick="stahnoutPDF()">Stáhnout PDF fakturu</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const dodavatel = (params.get("dodavatel") || "").replace(/\\n/g, "\n");
+    const odberatel = (params.get("odberatel") || "").replace(/\\n/g, "\n");
+    const vystaveno = params.get("vystaveno") || "";
+    const splatnost = params.get("splatnost") || "";
+    const banka = params.get("banka") || "";
+    const co = params.get("co") || "";
+    const komentar = (params.get("komentar") || "").replace(/\\n/g, "\n");
+    const pocet = parseFloat(params.get("pocet") || "0");
+    const cena = parseFloat(params.get("cena") || "0");
+    const celkem = (pocet * cena).toFixed(2);
+    const urlCislo = params.get("cislo");
+    let cisloFaktury = "";
+
+    if (urlCislo) {
+      cisloFaktury = urlCislo;
+    } else {
+      let counter = parseInt(localStorage.getItem("fakturaCounter") || "0") + 1;
+      localStorage.setItem("fakturaCounter", counter);
+      const rok = new Date().getFullYear();
+      cisloFaktury = `F${rok}-${String(counter).padStart(3, '0')}`;
+    }
+
+    document.getElementById("dodavatel").textContent = dodavatel;
+    document.getElementById("odberatel").textContent = odberatel;
+    document.getElementById("vystaveno").textContent = vystaveno;
+    document.getElementById("splatnost").textContent = splatnost;
+    document.getElementById("banka").textContent = banka;
+    document.getElementById("co").textContent = co;
+    document.getElementById("pocet").textContent = pocet;
+    document.getElementById("cena").textContent = cena.toFixed(2);
+    document.getElementById("celkem").textContent = celkem;
+    document.getElementById("cisloFaktury").textContent = cisloFaktury;
+
+    if (komentar.trim() !== "") {
+      const komentDiv = document.getElementById("komentar");
+      komentDiv.textContent = "Poznámka: " + komentar;
+      komentDiv.style.display = "block";
+    }
+
+    function stahnoutPDF() {
+      const element = document.getElementById('faktura');
+      const opt = {
+        margin: [0, 0, 0, 0],
+        filename: cisloFaktury + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: [180, 297],
+          orientation: 'portrait'
+        },
+        pagebreak: { avoid: 'div' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+
+</body>
+</html>
