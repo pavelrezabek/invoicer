@@ -13,6 +13,13 @@ app.get("/invoicer1", (req, res) => {
   res.sendFile(path.join(__dirname, "invoice1.html"));
 });
 
+// Serve invoice1.html on /invoicer2
+app.get("/invoicer2", (req, res) => {
+  res.sendFile(path.join(__dirname, "invoice2.html"));
+});
+
+
+
 // Start server
 app.listen(port, () => {
   console.log(`Server běží na:`);
